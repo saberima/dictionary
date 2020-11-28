@@ -4,12 +4,14 @@ import 'package:meta/meta.dart';
 class Word extends Equatable {
   final String word;
   final List<PhoneticItem> phonetics;
-  final List<WordDefinitions> meanings;
+  final List<Meanings> meanings;
+  int cardLevel;
 
   Word({
     @required this.word,
     @required this.phonetics,
     @required this.meanings,
+    this.cardLevel,
   });
 
   @override
@@ -18,22 +20,22 @@ class Word extends Equatable {
       ];
 }
 
-class WordDefinitions {
+class Meanings {
   final String partOfSpeech;
-  final List<WordDefinitionItem> definitions;
+  final List<DefinitionItem> definitions;
 
-  WordDefinitions({
+  Meanings({
     @required this.partOfSpeech,
     @required this.definitions,
   });
 }
 
-class WordDefinitionItem {
+class DefinitionItem {
   final String definition;
   final String example;
   final List<String> synonyms;
 
-  WordDefinitionItem({
+  DefinitionItem({
     @required this.definition,
     @required this.example,
     @required this.synonyms,
