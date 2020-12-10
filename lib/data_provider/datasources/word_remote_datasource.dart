@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import 'package:dictionary/core/errors/exceptions.dart';
 import 'package:dictionary/data_provider/models/models.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 
 abstract class WordRemoteDatasource {
   Future<WordModel> getWord(String word);
@@ -31,9 +30,14 @@ class WordRemoteDatasourceImpl implements WordRemoteDatasource {
   /// samples from https://dictionaryapi.dev/
   @override
   Future<WordModel> getWord(String word) async {
-    final response = await client.get(
-      'https://api.dictionaryapi.dev/api/v2/entries/en/$word',
-    );
+    http.Response response;
+    try {
+      response = await client.get(
+        'https://api.dictionaryapi.dev/api/v2/entries/en/$word',
+      );
+    } on SocketException {
+      throw ServiceException();
+    }
     switch (response.statusCode) {
       case 200:
         return WordModel.fromJson(json.decode(response.body)[0]);

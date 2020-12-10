@@ -7,8 +7,11 @@ import 'package:meta/meta.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final WordRepository wordRepository;
+  final FlashcardRepository flashcardRepository;
 
-  SearchBloc({@required this.wordRepository}) : super(SearchStateInitial());
+  SearchBloc(
+      {@required this.wordRepository, @required this.flashcardRepository})
+      : super(SearchStateInitial());
 
   @override
   Stream<SearchState> mapEventToState(SearchEvent event) async* {
@@ -23,7 +26,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           yield SearchStateLoadFailure(failure: failure);
         },
         (word) async* {
-          yield SearchStateLoadSuccess(word: word);
+          yield SearchStateLoadSuccess(
+            word: word,
+            bucketNumber: flashcardRepository.getBucketNumber(word.word),
+          );
         },
       );
     } else if (event is SearchEventPlayPhoneticRequested) {
@@ -32,6 +38,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         sl<PlayPhonetic>().play(phonetic);
         yield SearchStatePhoneticPlayed();
       });
+    } else if (event is SearchEventStoreInFlashcardRequested) {
+      var bucketNumber = event.bucketNumber;
+      if (event.store)
+        bucketNumber =
+            (await flashcardRepository.addCard(event.word.word)).bucketNumber;
+      else {
+        flashcardRepository.removeCard(event.bucketNumber, event.word.word);
+        bucketNumber = -1;
+      }
+      yield SearchStateLoadSuccess(
+        word: event.word,
+        bucketNumber: bucketNumber,
+      );
     }
   }
 

@@ -19,11 +19,12 @@ class SearchStatePhoneticPlayed extends SearchState {}
 
 class SearchStateLoadSuccess extends SearchState {
   final Word word;
+  final int bucketNumber;
 
-  const SearchStateLoadSuccess({@required this.word});
+  const SearchStateLoadSuccess({@required this.word, @required this.bucketNumber});
 
   @override
-  List<Object> get props => [word];
+  List<Object> get props => [word, bucketNumber];
 }
 
 class SearchStateLoadFailure extends SearchState {

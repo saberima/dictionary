@@ -1,17 +1,16 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
+@immutable
 class Word extends Equatable {
   final String word;
   final List<PhoneticItem> phonetics;
   final List<Meanings> meanings;
-  int cardLevel;
 
   Word({
     @required this.word,
     @required this.phonetics,
     @required this.meanings,
-    this.cardLevel,
   });
 
   @override

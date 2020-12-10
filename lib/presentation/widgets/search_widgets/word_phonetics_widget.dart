@@ -5,8 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WordAndPhoneticsWidget extends StatelessWidget {
   final Word word;
+  final int bucketNumber;
 
-  const WordAndPhoneticsWidget({Key key, this.word}) : super(key: key);
+  const WordAndPhoneticsWidget({
+    Key key,
+    this.word,
+    this.bucketNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +68,26 @@ class WordAndPhoneticsWidget extends StatelessWidget {
       ));
       wordAndPhonetics.add(element);
     });
+    wordAndPhonetics.add(Spacer());
+    wordAndPhonetics.add(Padding(
+      padding: const EdgeInsets.only(top: 5, right: 8.0),
+      child: Column(
+        children: [
+          Text(
+            "As a flashcard",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          Switch(
+            value: bucketNumber != -1,
+            onChanged: (state) => BlocProvider.of<SearchBloc>(context).add(
+              SearchEventStoreInFlashcardRequested(word, state, bucketNumber),
+            ),
+          ),
+        ],
+      ),
+    ));
 
     return Row(
       children: wordAndPhonetics,

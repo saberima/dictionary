@@ -2,18 +2,28 @@ import 'package:dictionary/core/errors/Failures.dart';
 import 'package:dictionary/domain/usecases/search/search.dart';
 import 'package:dictionary/injection_container.dart';
 import 'package:dictionary/presentation/widgets/search_widgets/search_widgets.dart';
+import 'package:dictionary/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'flashcard_page.dart';
 
 class SearchPage extends StatelessWidget {
+  static const routeName = "/search";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Search'),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.book),
+            onPressed: () =>
+                Navigator.pushNamed(context, FlashcardPage.routeName),
+          )
+        ],
       ),
       body: buildBody(context),
     );
@@ -34,12 +44,7 @@ class SearchPage extends StatelessWidget {
                     !(state is SearchStatePhoneticPlayed),
                 builder: (context, state) {
                   if (state is SearchStateLoadInProgress) {
-                    return Container(
-                      height: 200,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
+                    return ShowProgressIndicator();
                   } else if (state is SearchStateInitial) {
                     return DisplayMessage(message: "Type your word...");
                   } else if (state is SearchStateLoadFailure) {
@@ -51,10 +56,13 @@ class SearchPage extends StatelessWidget {
                       return DisplayMessage(message: "Not found...");
                     }
                   } else if (state is SearchStateLoadSuccess) {
-                    return Expanded(
-                      child: DisplayWord(word: state.word),
+                    return DisplayWord(
+                      word: state.word,
+                      bucketNumber: state.bucketNumber,
                     );
                   }
+                  // never happen
+                  return ShowProgressIndicator();
                 },
               ),
             ],

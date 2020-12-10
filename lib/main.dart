@@ -1,3 +1,4 @@
+import 'package:dictionary/presentation/pages/flashcard_page.dart';
 import 'package:dictionary/presentation/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'injection_container.dart' as di;
@@ -14,6 +15,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DicFlash',
+      routes: {
+        SearchPage.routeName: (context) => di.sl<SearchPage>(),
+        FlashcardPage.routeName: (context) => di.sl<FlashcardPage>(),
+      },
       theme: ThemeData(
         // This is the theme of your application.
         //

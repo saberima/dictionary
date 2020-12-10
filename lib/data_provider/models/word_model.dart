@@ -6,12 +6,10 @@ class WordModel extends Word {
     @required String word,
     @required List<PhoneticItem> phonetics,
     @required List<Meanings> meanings,
-    cardLevel = 1,
   }) : super(
           word: word,
           phonetics: phonetics,
           meanings: meanings,
-          cardLevel: cardLevel,
         );
 
   factory WordModel.fromJson(Map<String, dynamic> json) {
@@ -26,14 +24,12 @@ class WordModel extends Word {
       word: json['word'],
       phonetics: phonetics,
       meanings: meanings,
-      cardLevel: json['cardLevel'] ?? 1,
     );
   }
 
   static Map<String, dynamic> toJson(WordModel wordModel) {
     return {
       'word': wordModel.word,
-      'cardLevel': wordModel.cardLevel,
       'phonetics': wordModel.phonetics.map((e) => PhoneticItemModel.toJson(e)).toList(),
       'meanings': wordModel.meanings.map((e) => MeaningsModel.toJson(e)).toList(),
     };

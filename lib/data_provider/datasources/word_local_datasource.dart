@@ -13,26 +13,24 @@ abstract class WordLocalDatasource {
   Future<void> storeWord(WordModel word);
   Future<Uint8List> getPhonetic(String audioFile);
   Future<void> storePhonetic(Uint8List bytes, String url);
-  Future<Set<String>> getWordTitleList();
-  Future<void> addWordToCards(String word, int level);
-  Future<List<String>> getWordsOfLevel(int level);
+  Future<Set<String>> getWordTitleSet();
 }
 
 class WordLocalDatasourceImpl implements WordLocalDatasource {
   final SharedPreferences sharedPreferences;
+  final String _key = "word_";
 
   WordLocalDatasourceImpl({
     @required this.sharedPreferences,
   });
 
   @override
-  Future<WordModel> getWord(String word) {
-    final jsonString = sharedPreferences.get(word);
-    sharedPreferences.remove(word);
+  Future<WordModel> getWord(String word) async {
+    var jsonString;
+    if (sharedPreferences.containsKey(_key + word))
+      jsonString = sharedPreferences.get(_key + word);
     if (jsonString != null) {
-      return Future.value(
-        WordModel.fromJson(json.decode(jsonString)),
-      );
+      return WordModel.fromJson(json.decode(jsonString));
     } else {
       throw StoreException();
     }
@@ -40,54 +38,48 @@ class WordLocalDatasourceImpl implements WordLocalDatasource {
 
   @override
   Future<void> storeWord(WordModel word) async {
-    WordModel.toJson(word);
-    sharedPreferences.setString(
-      word.word,
-      json.encode(
-        WordModel.toJson(word),
-      ),
-    );
-  }
-
-  String _getFilenameFromURI(String url) => url.split('/').last;
-
-  @override
-  Future<Uint8List> getPhonetic(String url) async {
-    var filename = _getFilenameFromURI(url);
-
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = new File('$dir/$filename');
-    if (file.existsSync())
-      return file.readAsBytes();
-    else
-      return null;
-  }
-
-  @override
-  Future<void> storePhonetic(Uint8List bytes, String url) async {
-    var filename = _getFilenameFromURI(url);
-
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = new File('$dir/$filename');
-    file.writeAsBytes(bytes);
-  }
-
-  @override
-  Future<Set<String>> getWordTitleList() async {
-    return sharedPreferences.getKeys();
-  }
-
-  @override
-  Future<void> addWordToCards(String word, int level) async {
-    var list = await getWordsOfLevel(level);
-    list.add(word);
-    sharedPreferences.setStringList(
-      "cardsOfLevel" + level.toString(),
-      list,
-    );
-  }
-
-  Future<List<String>> getWordsOfLevel(int level) async {
-    return sharedPreferences.getStringList("cardsOfLevel" + level.toString());
-  }
+    var wordTitleSet = await getWordTitleSet();
+    wordTitleSet.add(word.word);
+    _setWordTitleSet(wordTitleSet);
+        sharedPreferences.setString(
+          _key + word.word,
+          json.encode(
+            WordModel.toJson(word),
+          ),
+        );
+      }
+    
+      String _getFilenameFromURI(String url) => url.split('/').last;
+    
+      @override
+      Future<Uint8List> getPhonetic(String url) async {
+        var filename = _getFilenameFromURI(url);
+    
+        String dir = (await getApplicationDocumentsDirectory()).path;
+        File file = new File('$dir/$filename');
+        if (file.existsSync())
+          return file.readAsBytes();
+        else
+          return null;
+      }
+    
+      @override
+      Future<void> storePhonetic(Uint8List bytes, String url) async {
+        var filename = _getFilenameFromURI(url);
+    
+        String dir = (await getApplicationDocumentsDirectory()).path;
+        File file = new File('$dir/$filename');
+        file.writeAsBytes(bytes);
+      }
+    
+      @override
+      Future<Set<String>> getWordTitleSet() async {
+          if (sharedPreferences.containsKey("list_of_words"))
+      return sharedPreferences.getStringList("list_of_words").toSet();
+      else return Set();
+      }
+    
+      void _setWordTitleSet(Set<String> wordTitleSet) {
+        sharedPreferences.setStringList("list_of_words", wordTitleSet.toList());
+      }
 }

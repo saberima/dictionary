@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dictionary/core/errors/exceptions.dart';
 import 'package:dictionary/core/network/network_checker.dart';
+import 'package:dictionary/core/setting/setting.dart';
 import 'package:dictionary/data_provider/datasources/datasources.dart';
 import 'package:dictionary/domain/entities/word.dart';
 import 'package:dictionary/core/errors/Failures.dart';
@@ -12,19 +13,19 @@ abstract class WordRepository {
   Future<Either<Failure, Word>> getWord(String word);
   Future<Either<Failure, Uint8List>> getPhonetic(String audioFile);
   Future<List<String>> getWordsLike(String string);
-  Future<void> addWordToCards(String word, int level);
-  Future<List<String>> getWordsOfLevel(int level);
 }
 
 class WordRepositoryImpl implements WordRepository {
   final WordLocalDatasource localDatasource;
   final WordRemoteDatasource remoteDatasource;
   final NetworkChecker networkChecker;
+  final FlashcardDatasource flashcardDatasource;
 
   WordRepositoryImpl({
     @required this.localDatasource,
     @required this.remoteDatasource,
     @required this.networkChecker,
+    @required this.flashcardDatasource,
   });
 
   @override
@@ -36,7 +37,7 @@ class WordRepositoryImpl implements WordRepository {
     try {
       final remoteWord = await remoteDatasource.getWord(word);
       localDatasource.storeWord(remoteWord);
-      localDatasource.addWordToCards(word, remoteWord.cardLevel);
+      flashcardDatasource.addNewWordToCards(remoteWord.word);
       return Right(remoteWord);
     } on ServiceException {
       return Left(ServerFailure());
@@ -66,20 +67,11 @@ class WordRepositoryImpl implements WordRepository {
   Future<List<String>> getWordsLike(String string) async {
     var stringToLowerCase = string.toLowerCase();
     List<String> result = [];
-    var set = await localDatasource.getWordTitleList();
-    set.forEach((word) {
+    var wordSet = await localDatasource.getWordTitleSet();
+    var count = Settings.searchSettings.getSuggestionCount();
+    wordSet.take(count).forEach((word) {
       if (word.toLowerCase().startsWith(stringToLowerCase)) result.add(word);
     });
     return result;
-  }
-
-  @override
-  Future<void> addWordToCards(String word, int level) async {
-    localDatasource.addWordToCards(word, level);
-  }
-
-  @override
-  Future<List<String>> getWordsOfLevel(int level) async {
-    return await localDatasource.getWordsOfLevel(level);
   }
 }

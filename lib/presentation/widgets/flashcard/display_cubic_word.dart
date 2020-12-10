@@ -1,20 +1,20 @@
-import 'package:dictionary/domain/entities/word.dart';
+import 'package:dictionary/domain/entities/flashcard.dart';
 import 'package:dictionary/presentation/widgets/search_widgets/search_widgets.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class CubicWord extends StatefulWidget {
-  final Word word;
+class DisplayCubicWord extends StatefulWidget {
+  final Flashcard card;
   final double planeSize = 200;
   final double cubeContainerHeight = 300;
 
-  CubicWord({Key key, this.word}) : super(key: key);
+  DisplayCubicWord({Key key, this.card}) : super(key: key);
 
   @override
-  _CubicWordState createState() => _CubicWordState();
+  _DisplayCubicWordState createState() => _DisplayCubicWordState();
 }
 
-class _CubicWordState extends State<CubicWord>
+class _DisplayCubicWordState extends State<DisplayCubicWord>
     with SingleTickerProviderStateMixin {
   var _planeInfoList = List<Map<String, dynamic>>();
 
@@ -98,12 +98,12 @@ class _CubicWordState extends State<CubicWord>
       {
         "startAngle": 0.0,
         "widget": WordAndPhoneticsWidget(
-          word: widget.word,
+          word: widget.card.word,
         ),
       },
     ];
     Column widgetColumnt = MeaningWidget(
-      word: widget.word,
+      word: widget.card.word,
     ) as Column;
     widgetColumnt.children.asMap().forEach(
       (index, element) {
