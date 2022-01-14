@@ -35,7 +35,7 @@ class DisplayWord extends StatelessWidget {
                     offset: Offset(0, 2)),
               ],
             ),
-            child: WordAndPhoneticsWidget(
+            child: SearchWordAndPhoneticsWidget(
               word: word,
               bucketNumber: bucketNumber,
             ),

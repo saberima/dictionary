@@ -3,6 +3,8 @@ import 'package:dictionary/presentation/widgets/search_widgets/search_widgets.da
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'flashcard_widgets.dart';
+
 class DisplayCubicWord extends StatefulWidget {
   final Flashcard card;
   final double planeSize = 200;
@@ -27,56 +29,50 @@ class _DisplayCubicWordState extends State<DisplayCubicWord>
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Stack(
-      children: <Widget>[
-        GestureDetector(
-          onHorizontalDragStart: (details) {
-            _animationController.stop();
-          },
-          onHorizontalDragUpdate: (details) => setState(
-              () => _offsetAngle += details.delta.dx / width * pi /* /2 * 2 */),
-          onHorizontalDragEnd: (details) {
-            double targetAngle =
-                (_offsetAngle / _baseAngle).round() * _baseAngle;
-            _animationController.duration = Duration(
-              milliseconds:
-                  ((_offsetAngle - targetAngle).abs() / _baseAngle * 5000)
-                      .round(),
-            );
-            _tween.begin = _offsetAngle;
-            _tween.end = targetAngle;
-            _animationController.reset();
-            _animationController.forward();
-          },
-          child: Container(
-              width: width,
-              height: widget.cubeContainerHeight,
-              child: Card(
-                clipBehavior: Clip.antiAlias,
-                child: Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: _planeInfoList
-                        .asMap()
-                        .map(
-                          (index, planeInfo) => MapEntry(
-                            index,
-                            CubePlane(
-                              widget: planeInfo["widget"].cast<Widget>(),
-                              sideCount: _planeInfoList.length,
-                              startAngle: planeInfo["startAngle"],
-                              offsetAngle: _offsetAngle,
-                              size: widget.planeSize,
-                            ),
-                          ),
-                        )
-                        .values
-                        .toList(),
-                  ),
-                ),
-              )),
-        ),
-      ],
+    return GestureDetector(
+      onHorizontalDragStart: (details) {
+        _animationController.stop();
+      },
+      onHorizontalDragUpdate: (details) => setState(
+          () => _offsetAngle += details.delta.dx / width * pi /* /2 * 2 */),
+      onHorizontalDragEnd: (details) {
+        double targetAngle = (_offsetAngle / _baseAngle).round() * _baseAngle;
+        _animationController.duration = Duration(
+          milliseconds:
+              ((_offsetAngle - targetAngle).abs() / _baseAngle * 5000).round(),
+        );
+        _tween.begin = _offsetAngle;
+        _tween.end = targetAngle;
+        _animationController.reset();
+        _animationController.forward();
+      },
+      child: Container(
+          width: width,
+          height: widget.cubeContainerHeight,
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            child: Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: _planeInfoList
+                    .asMap()
+                    .map(
+                      (index, planeInfo) => MapEntry(
+                        index,
+                        CubePlane(
+                          widget: planeInfo["widget"],
+                          sideCount: _planeInfoList.length,
+                          startAngle: planeInfo["startAngle"],
+                          offsetAngle: _offsetAngle,
+                          size: widget.planeSize,
+                        ),
+                      ),
+                    )
+                    .values
+                    .toList(),
+              ),
+            ),
+          )),
     );
   }
 
@@ -97,15 +93,17 @@ class _DisplayCubicWordState extends State<DisplayCubicWord>
     _planeInfoList = [
       {
         "startAngle": 0.0,
-        "widget": WordAndPhoneticsWidget(
+        "widget": FlashcardWordAndPhoneticsWidget(
           word: widget.card.word,
+          bucketNumber: widget.card.bucketNumber,
+          textColor: Colors.black,
         ),
       },
     ];
-    Column widgetColumnt = MeaningWidget(
+    var meaningList = MeaningWidget(
       word: widget.card.word,
-    ) as Column;
-    widgetColumnt.children.asMap().forEach(
+    );
+    meaningList.meanings(context).asMap().forEach(
       (index, element) {
         _planeInfoList.add(
           {
@@ -153,7 +151,10 @@ class CubePlane extends StatelessWidget {
       width: size,
       height: size,
       child: 1.48353 < angleRelatedToFront && angleRelatedToFront < 4.79966
-          ? Container()
+          ? Container(
+              width: size,
+              height: size,
+            )
           : Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()

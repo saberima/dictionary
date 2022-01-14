@@ -7,9 +7,8 @@ class MeaningWidget extends StatelessWidget {
   final Word word;
 
   const MeaningWidget({Key key, this.word}) : super(key: key);
-  
-  @override
-  Widget build(BuildContext context) {
+
+  List<Widget> meanings(BuildContext context) {
     var meanings = List<Widget>();
     word.meanings.map(
       (meaning) {
@@ -113,14 +112,24 @@ class MeaningWidget extends StatelessWidget {
         );
       },
     ).forEach((element) {
-      meanings.addAll([
-        SizedBox(
-          height: 10,
+      meanings.add(
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            element
+          ],
         ),
-        element
-      ]);
+      );
     });
 
-    return Column(children: meanings);
+    return meanings;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: meanings(context));
   }
 }

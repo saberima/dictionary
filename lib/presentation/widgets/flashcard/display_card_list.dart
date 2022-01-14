@@ -17,10 +17,9 @@ class DisplayCardList extends StatelessWidget {
     cardString = [];
     bucketNumber = [];
     cardList.forEach((flashcardList) {
-      cardString
-          .addAll(flashcardList.map((flashcard) => flashcard.wordTitle));
-      bucketNumber
-          .addAll(List.generate(flashcardList.length, (index) => flashcardList[index].bucketNumber));
+      cardString.addAll(flashcardList.map((flashcard) => flashcard.wordTitle));
+      bucketNumber.addAll(List.generate(
+          flashcardList.length, (index) => flashcardList[index].bucketNumber));
     });
     if (bucketNumber.isEmpty)
       return Container(
@@ -59,6 +58,12 @@ class DisplayCardList extends StatelessWidget {
                 child: Card(
                   child: ListTile(
                     title: Center(child: Text(cardString[position])),
+                    onTap: () => BlocProvider.of<FlashcardBloc>(context).add(
+                      FlashcardEventCardRequested(
+                        bucketNumber: bucketNumber[position],
+                        wordTitle: cardString[position],
+                      ),
+                    ),
                   ),
                 ),
                 background: Row(

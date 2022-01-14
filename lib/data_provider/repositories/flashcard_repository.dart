@@ -76,6 +76,7 @@ class FlashcardRepositoryImpl implements FlashcardRepository {
   Future<FlashcardModel> getCard(int bucketNumber, String wordTitle) async {
     var flashcardModel = _getCard(bucketNumber, wordTitle);
     if (flashcardModel != null) {
+      flashcardModel.word = await localDatasource.getWord(wordTitle);
       await flashcardDatasource.moveFlashcardToNextBucket(flashcardModel);
       return flashcardModel;
     } else

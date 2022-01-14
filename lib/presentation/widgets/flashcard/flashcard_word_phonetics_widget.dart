@@ -3,33 +3,24 @@ import 'package:dictionary/domain/usecases/search/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class WordAndPhoneticsWidget extends StatelessWidget {
+class FlashcardWordAndPhoneticsWidget extends StatelessWidget {
   final Word word;
   final int bucketNumber;
+  final Color textColor;
 
-  const WordAndPhoneticsWidget({
+  const FlashcardWordAndPhoneticsWidget({
     Key key,
-    this.word,
-    this.bucketNumber,
+    @required this.word,
+    @required this.bucketNumber,
+    @required this.textColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var wordAndPhonetics = List<Widget>.from([
-      Center(
-        child: SizedBox(
-          width: 150,
-          height: 70,
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.only(left: 5),
-              child: Text(
-                word.word,
-                style: TextStyle(fontSize: 30, color: Colors.white),
-              ),
-            ),
-          ),
-        ),
+      Text(
+        word.word,
+        style: TextStyle(fontSize: 30, color: textColor),
       ),
     ]);
     word.phonetics
@@ -43,7 +34,7 @@ class WordAndPhoneticsWidget extends StatelessWidget {
             ),
             Text(
               phoneticItem.text,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: textColor),
             ),
             Align(
               alignment: Alignment.topLeft,
@@ -51,7 +42,7 @@ class WordAndPhoneticsWidget extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 icon: Icon(
                   Icons.volume_up,
-                  color: Colors.white,
+                  color: textColor,
                 ),
                 onPressed: () => BlocProvider.of<SearchBloc>(context).add(
                   SearchEventPlayPhoneticRequested(phoneticItem.audioFile),
@@ -68,28 +59,8 @@ class WordAndPhoneticsWidget extends StatelessWidget {
       ));
       wordAndPhonetics.add(element);
     });
-    wordAndPhonetics.add(Spacer());
-    wordAndPhonetics.add(Padding(
-      padding: const EdgeInsets.only(top: 5, right: 8.0),
-      child: Column(
-        children: [
-          Text(
-            "As a flashcard",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          Switch(
-            value: bucketNumber != -1,
-            onChanged: (state) => BlocProvider.of<SearchBloc>(context).add(
-              SearchEventStoreInFlashcardRequested(word, state, bucketNumber),
-            ),
-          ),
-        ],
-      ),
-    ));
 
-    return Row(
+    return Column(
       children: wordAndPhonetics,
     );
   }
